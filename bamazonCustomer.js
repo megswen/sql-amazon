@@ -1,6 +1,7 @@
 //Connecting to mysql and inquirer packages
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+// Var to require bamazonManager file
 
 // Connecting to bamazon DB via mysql
 var connection = mysql.createConnection({
@@ -23,6 +24,7 @@ function getInfo(){
         "SELECT item_id, product_name, department_name, price, stock_quantity FROM products",
     function(err, res){
         if (err) throw err;
+        console.log("\n");
         console.table(res);
     });
     askQuestions();
@@ -70,8 +72,8 @@ function askQuestions(answer){
                 if (err) throw err;
                 }); 
                 console.log("Inventory updated. There are " + quantityLeft + " " + res[0].product_name + "(s) left. Have a nice day!"); 
-                askQuestions();
             }
+            connection.end();
         }); 
     });  
 }
