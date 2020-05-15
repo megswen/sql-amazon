@@ -1,7 +1,6 @@
 //Connecting to mysql and inquirer packages
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-// Var to require bamazonManager file
 
 // Connecting to bamazon DB via mysql
 var connection = mysql.createConnection({

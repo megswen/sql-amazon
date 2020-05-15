@@ -1,6 +1,5 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-// Var to require bamazonCustomer file
 
 // Connecting to bamazon DB via mysql
 var connection = mysql.createConnection({
@@ -11,7 +10,7 @@ var connection = mysql.createConnection({
     database: "bamazon"
 });
 
-// Running a function to pull data from products table
+// Running a function to ask what the manager wants to do
 connection.connect(function(err){
     if (err) throw err;
     menuOptions();
@@ -35,13 +34,12 @@ function menuOptions(answer){
         }
         if(answer.menu === "Add to Inventory"){
             addInventory();
-        } else {
-            //addProduct();
+        } else if(answer.menu === "Add New Product"){
+            addProduct();
         }
     });
 }
 
-// Connect to queries down here for every function that needs it
 // Function for View products for sale
 function viewProducts(){
     connection.query("SELECT * FROM products",
@@ -99,10 +97,10 @@ function addInventory(){
             connection.query("UPDATE products SET ? WHERE ?",
                 [
                     {
-                    stock_quantity: chosenItem.stock_quantity += parseInt(answer.addInvQuant)
+                        stock_quantity: chosenItem.stock_quantity += parseInt(answer.addInvQuant)
                     },
                     {
-                    item_id: chosenItem.item_id
+                        item_id: chosenItem.item_id
                     }
                 ],
                 function(error) {
@@ -111,22 +109,49 @@ function addInventory(){
                     console.log("Successfully added "+ answer.addInvQuant + " " + chosenItem.product_name + "(s) to the inventory.");
                     viewProducts();
                 }
-                );
+            );
         });
     });
-
-
-
-
-    // });
 }
 
 // // Function for Add new product
-// function addProduct(){
+function addProduct(){
+    connection.query("SELECT * FROM products",
+    function(err, res){
+        if(err) throw err;
+    });
 
-// }
-// End connection
-
-///////////////
-// If a manager selects Add to Inventory, your app should display a prompt that will let the manager "add more" of any item currently in the store.
-// If a manager selects Add New Product, it should allow the manager to add a completely new product to the store.
+    inquirer.prompt([
+    {
+        type: "input",
+        message: "Please enter the product name:",
+        name: "productName"
+    },
+    {
+        type: "input",
+        message: "Please enter the department name:",
+        name: "departmentName"
+    },
+    {
+        type: "number",
+        message: "Please enter the price:",
+        name: "productPrice"
+    },
+    {
+        type: "number",
+        message: "Please enter the number of items you are adding:",
+        name: "stockAdding"
+    }
+    ]).then(function(answer){
+        var queryString = "INSERT INTO products SET ?";
+        connection.query(queryString, {
+            product_name: answer.productName,
+            department_name: answer.departmentName,
+            price: answer.productPrice,
+            stock_quantity: answer.stockAdding
+        });
+        console.log(answer.productName + " has been added to Bamazon.");
+        viewProducts();
+        connection.end();
+    });
+}
